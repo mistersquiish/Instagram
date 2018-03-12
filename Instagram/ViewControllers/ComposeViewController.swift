@@ -22,6 +22,14 @@ class ComposeViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     @IBAction func shareButton(_ sender: Any) {
         Post.postUserImage(image: photoView.image, withCaption: captionTextView.text, withCompletion: nil)
+        // present UIAlertController about successful save
+        /*let alertController = UIAlertController(title: "Post Uploaded!", message: "Your picture has successfully been uploaded", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        */
+        // return to HomeViewController
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! UINavigationController
+        self.present(vc, animated: false, completion: nil)
     }
     
     

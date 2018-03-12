@@ -14,6 +14,11 @@ class FeedCell: UITableViewCell {
     
     @IBOutlet weak var photoDescriptionLabel: UILabel!
     
+    var username: String!
+    var dateCreated: String!
+    var likes: Int!
+    
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -9,9 +9,17 @@
 import UIKit
 import Parse
 
-class HomeViewController: UIViewController, UITableViewDataSource {
+class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
     
     var posts: [String] = []
+    let queryLimit = 3
+    var loadedPagesCount = 1
+    // refresh controller
+    var refreshControl: UIRefreshControl!
+    // scrollView variables
+    var isMoreDataLoading = false
+    // infinite scroll loading variables
+    var loadingMoreView: InfiniteScrollView?
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -29,25 +37,24 @@ class HomeViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
+        tableView.delegate = self
+        
+        // Initialize a UIRefreshControl
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
+        
+        // Infinite Scroll loading indicator configuration
+        let frame = CGRect(x: 0, y: tableView.contentSize.height, width: tableView.bounds.size.width, height: InfiniteScrollView.defaultHeight)
+        loadingMoreView = InfiniteScrollView(frame: frame)
+        loadingMoreView!.isHidden = true
+        tableView.addSubview(loadingMoreView!)
+        var insets = tableView.contentInset
+        insets.bottom += InfiniteScrollView.defaultHeight
+        tableView.contentInset = insets
         
         // parse query
-        var query = PFQuery(className:"Post")
-        query.addDescendingOrder("createdAt")
-        query.findObjectsInBackground { (objects: [PFObject]?, error: Error?) -> Void in
-            if error == nil {
-                // The find succeeded.
-                // Do something with the found objects
-                if let objects = objects {
-                    for post in objects {
-                        self.posts.append(post.value(forKey: "objectId") as! String)
-                        self.tableView.reloadData()
-                    }
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!)")
-            }
-        }
+        queryPost()
 
     }
 
@@ -63,11 +70,15 @@ class HomeViewController: UIViewController, UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FeedCell", for: indexPath) as! FeedCell
-        var query = PFQuery(className: "Post")
+        let query = PFQuery(className: "Post")
         query.getObjectInBackground(withId: "\(posts[indexPath.row])") {
             (post: PFObject?, error: Error?) -> Void in
             if error == nil && post != nil {
-                cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as! String
+                cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as? String
+                let usernamePointer = post?.value(forKey: "author") as! PFUser
+                //cell.username = usernamePointer.value(forKey: "username") as! String
+                cell.likes = post?.value(forKey: "likesCount") as! Int
+                cell.dateCreated = String(describing: post?.value(forKey: "createdAt"))
                 // get UIImage from PFFfile
                 let postPicture = post?.value(forKey: "media")! as! PFFile
                     postPicture.getDataInBackground(block: {
@@ -78,9 +89,90 @@ class HomeViewController: UIViewController, UITableViewDataSource {
                         }
                     })
             } else {
-                print(error)
+                print("Error in tableView: \(error!)")
             }
         }
         return cell
+    }
+    
+    @objc func refreshControlAction(_ refreshControl: UIRefreshControl) {
+        queryPost()
+    }
+    
+    //MARK: Scroll View
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
+                isMoreDataLoading = true
+                
+                // Update position of loadingMoreView, and start loading indicator
+                let frame = CGRect(x: 0, y: tableView.contentSize.height, width: tableView.bounds.size.width, height: InfiniteScrollView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+                
+                // ... Code to load more results ...
+                
+                // Using NSPredicate
+                let query = PFQuery(className: "Post")
+                query.addDescendingOrder("createdAt")
+                if posts.count == queryLimit * loadedPagesCount {
+                    loadedPagesCount += 1
+                }
+                query.limit = queryLimit * loadedPagesCount
+                query.findObjectsInBackground { (objects: [PFObject]?, error: Error?) -> Void in
+                    if error == nil {
+                        // The find succeeded.
+                        // Do something with the found objects
+                        if let objects = objects {
+                            for post in objects {
+                                print(post.value(forKey: "objectId")!)
+                                if !(self.posts.contains(post.value(forKey: "objectId")! as! String)) {
+                                    self.posts.append(post.value(forKey: "objectId") as! String)
+                                    self.tableView.reloadData()
+                                    self.isMoreDataLoading = false
+                                }
+                            }
+                        }
+                    } else {
+                        // Log details of the failure
+                        print("Error in Scroll View: \(error!)")
+                    }
+                }
+                loadingMoreView!.stopAnimating()
+            }
+        }
+    }
+    
+    // query for posts
+    func queryPost() {
+        // parse query
+        let query = PFQuery(className:"Post")
+        query.addDescendingOrder("createdAt")
+        query.limit = queryLimit
+        loadedPagesCount = 1
+        isMoreDataLoading = false
+        query.findObjectsInBackground { (objects: [PFObject]?, error: Error?) -> Void in
+            if error == nil {
+                // The find succeeded.
+                // Do something with the found objects
+                if let objects = objects {
+                    var posts: [String] = []
+                    for post in objects {
+                        posts.append(post.value(forKey: "objectId") as! String)
+                    }
+                    self.posts = posts
+                    self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
+                }
+            } else {
+                // Log details of the failure
+                print("Error in queryPost: \(error!)")
+            }
+        }
     }
 }
