@@ -10,6 +10,8 @@ import UIKit
 import Parse
 
 class HomeViewController: UIViewController, UITableViewDataSource {
+    
+    var posts: [String] = []
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -27,6 +29,25 @@ class HomeViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
+        
+        // parse query
+        var query = PFQuery(className:"Post")
+        query.addDescendingOrder("createdAt")
+        query.findObjectsInBackground { (objects: [PFObject]?, error: Error?) -> Void in
+            if error == nil {
+                // The find succeeded.
+                // Do something with the found objects
+                if let objects = objects {
+                    for post in objects {
+                        self.posts.append(post.value(forKey: "objectId") as! String)
+                        self.tableView.reloadData()
+                    }
+                }
+            } else {
+                // Log details of the failure
+                print("Error: \(error!)")
+            }
+        }
 
     }
 
@@ -36,13 +57,30 @@ class HomeViewController: UIViewController, UITableViewDataSource {
     
     //MARK: TableViewDataSource
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return posts.count
     }
     
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FeedCell", for: indexPath) as! FeedCell
-        
+        var query = PFQuery(className: "Post")
+        query.getObjectInBackground(withId: "\(posts[indexPath.row])") {
+            (post: PFObject?, error: Error?) -> Void in
+            if error == nil && post != nil {
+                cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as! String
+                // get UIImage from PFFfile
+                let postPicture = post?.value(forKey: "media")! as! PFFile
+                    postPicture.getDataInBackground(block: {
+                        (imageData: Data!, error: Error!) -> Void in
+                        if (error == nil) {
+                            cell.photoView.image = UIImage(data:imageData)
+
+                        }
+                    })
+            } else {
+                print(error)
+            }
+        }
         return cell
     }
 }
