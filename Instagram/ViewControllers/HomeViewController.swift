@@ -9,7 +9,7 @@
 import UIKit
 import Parse
 
-class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
+class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, alerts {
     
     var posts: [String] = []
     let queryLimit = 20
@@ -71,6 +71,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FeedCell", for: indexPath) as! FeedCell
         let query = PFQuery(className: "Post")
+        cell.alertDelegate = self
         query.getObjectInBackground(withId: "\(posts[indexPath.row])") {
             (post: PFObject?, error: Error?) -> Void in
             if error == nil && post != nil {
@@ -182,5 +183,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                 print("Error in queryPost: \(error!)")
             }
         }
+    }
+    
+    // alert delegate
+    func presentAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true)
     }
 }

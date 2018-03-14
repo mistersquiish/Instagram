@@ -9,7 +9,13 @@
 import UIKit
 import Parse
 
+protocol alerts: class {
+    func presentAlert(title: String, message: String)
+}
+
 class FeedCell: UITableViewCell {
+    
+    var alertDelegate: alerts?
     
     @IBOutlet weak var photoView: UIImageView!
     
@@ -18,10 +24,7 @@ class FeedCell: UITableViewCell {
     @IBOutlet weak var usernameLabel: UILabel!
     
     @IBAction func moreInfoButton(_ sender: Any) {
-        let alertController = UIAlertController(title: "More info", message: "Date Created: \(dateCreated!) \n Likes: \(likes!)", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
+        alertDelegate?.presentAlert(title: "More info", message: "Date Created: \(dateCreated!) \n Likes: \(likes!)")
     }
     
     var username: String!
