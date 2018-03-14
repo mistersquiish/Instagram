@@ -52,7 +52,7 @@ Stories I didn't show in the walkthrough:
 - persisted user login
 - infinite scrolling
 
-<img src='https://i.imgur.com/j8SeyJR.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://i.imgur.com/6irm10f.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 

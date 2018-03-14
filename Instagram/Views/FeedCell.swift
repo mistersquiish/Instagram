@@ -24,18 +24,17 @@ class FeedCell: UITableViewCell {
     @IBOutlet weak var usernameLabel: UILabel!
     
     @IBAction func moreInfoButton(_ sender: Any) {
-        alertDelegate?.presentAlert(title: "More info", message: "Date Created: \(dateCreated!) \n Likes: \(likes!)")
+        alertDelegate?.presentAlert(title: "More info", message: "Date Created: \(String(describing: dateCreated!)) \n Likes: \(likes!)")
     }
     
     var username: String!
-    var dateCreated: String!
+    var dateCreated: Date!
     var likes: Int!
     
     
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        //usernameLabel.text = username
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

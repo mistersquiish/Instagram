@@ -88,7 +88,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                 }
                 cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as? String
                 cell.likes = post?.value(forKey: "likesCount") as! Int
-                cell.dateCreated = String(describing: post?.value(forKey: "createdAt"))
+                cell.dateCreated = post?.value(forKey: "createdAt") as? Date
                 // get UIImage from PFFfile
                 let postPicture = post?.value(forKey: "media")! as! PFFile
                     postPicture.getDataInBackground(block: {
