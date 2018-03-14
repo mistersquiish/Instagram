@@ -15,7 +15,7 @@ The following **required** functionality is completed:
 - [x] User can take a photo, add a caption, and post it to "Instagram" (+2pt)
 - [x] User can view the last 20 posts submitted to "Instagram" (+2pt)
 - [x] User can pull to refresh the last 20 posts submitted to "Instagram" (+1pt)
-- [ ] User can tap a post to view post details, including timestamp and caption (+2pt)
+- [x] User can tap a post to view post details, including timestamp and caption (+2pt)
 
 The following **stretch** features are implemented:
 

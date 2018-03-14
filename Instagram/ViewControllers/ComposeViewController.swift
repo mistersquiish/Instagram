@@ -48,7 +48,7 @@ class ComposeViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
-        let tappedImage = tapGestureRecognizer.view as! UIImageView
+        //let tappedImage = tapGestureRecognizer.view as! UIImageView
         
         let image = UIImagePickerController()
         image.delegate = self
@@ -66,6 +66,7 @@ class ComposeViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         // Do something with the images (based on your use case)
         photoView.image = originalImage
+        
         // Dismiss UIImagePickerController to go back to your original view controller
         dismiss(animated: true, completion: nil)
     }

@@ -74,9 +74,19 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         query.getObjectInBackground(withId: "\(posts[indexPath.row])") {
             (post: PFObject?, error: Error?) -> Void in
             if error == nil && post != nil {
-                cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as? String
                 let usernamePointer = post?.value(forKey: "author") as! PFUser
-                //cell.username = usernamePointer.value(forKey: "username") as! String
+                let usernameId = usernamePointer.value(forKey: "objectId") as! String
+                let usernameQuery = PFUser.query()
+                usernameQuery?.getObjectInBackground(withId: usernameId) {
+                    (usernameObject: PFObject?, error: Error?) -> Void in
+                    if error == nil && post != nil {
+                        cell.usernameLabel.text = usernameObject?.value(forKey: "username") as? String
+                    } else {
+                        print("Error in retrieving username: \(error!)")
+                    }
+                }
+                
+                cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as? String
                 cell.likes = post?.value(forKey: "likesCount") as! Int
                 cell.dateCreated = String(describing: post?.value(forKey: "createdAt"))
                 // get UIImage from PFFfile
