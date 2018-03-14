@@ -15,7 +15,7 @@ class ComposeViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBOutlet weak var photoView: UIImageView!
     
     @IBAction func cancelButton(_ sender: Any) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! UINavigationController
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! UITabBarController
         self.present(vc, animated: false, completion: nil)
     }
     
@@ -28,7 +28,7 @@ class ComposeViewController: UIViewController, UIImagePickerControllerDelegate, 
         alertController.addAction(okAction)
         */
         // return to HomeViewController
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! UINavigationController
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! UITabBarController
         self.present(vc, animated: false, completion: nil)
     }
     

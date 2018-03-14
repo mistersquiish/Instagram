@@ -12,7 +12,7 @@ import Parse
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
     
     var posts: [String] = []
-    let queryLimit = 3
+    let queryLimit = 20
     var loadedPagesCount = 1
     // refresh controller
     var refreshControl: UIRefreshControl!
@@ -85,7 +85,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                         print("Error in retrieving username: \(error!)")
                     }
                 }
-                
                 cell.photoDescriptionLabel.text = post?.value(forKey: "caption") as? String
                 cell.likes = post?.value(forKey: "likesCount") as! Int
                 cell.dateCreated = String(describing: post?.value(forKey: "createdAt"))
@@ -140,7 +139,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                         // Do something with the found objects
                         if let objects = objects {
                             for post in objects {
-                                print(post.value(forKey: "objectId")!)
                                 if !(self.posts.contains(post.value(forKey: "objectId")! as! String)) {
                                     self.posts.append(post.value(forKey: "objectId") as! String)
                                     self.tableView.reloadData()
